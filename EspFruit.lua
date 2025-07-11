@@ -3,40 +3,56 @@ EspFruit.__index = EspFruit
 
 function EspFruit.new()
     local self = setmetatable({}, EspFruit)
-    self.fruitFound = false
+    self.isActive = false
     self.notificationSent = false
+    self.fruitModel = nil
     return self
 end
 
-function EspFruit:searchFruit()
-    local workspace = game:GetService("Workspace")
-    local fruitModel = workspace:FindFirstChild("Fruit")
-    
-    if fruitModel and not self.notificationSent then
-        self:sendNotification()
-        self.fruitFound = true
-        self.notificationSent = true
+function EspFruit:findFruit()
+    for _, child in pairs(game.Workspace:GetChildren()) do
+        if child.Name == "Fruit" and child:IsA("Model") then
+            self.fruitModel = child
+            return self
+        end
     end
-    
     return self
 end
 
 function EspFruit:sendNotification()
-    local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nebula-Softworks/Luna-Interface-Suite/refs/heads/master/source.lua", true))()
-    
-    Luna:Notification({
-        Title = "Fruit Spawned",
-        Icon = "casino",
-        ImageSource = "Material",
-        Content = "Uma fruta aleatória foi localizada. Use a toggle 'Esp Fruit' para ativar o farm!",
-        Duration = 3
-    })
-    
+    if not self.notificationSent then
+        local Luna = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nebula-Softworks/Luna-Interface-Suite/refs/heads/master/source.lua", true))()
+        Luna:Notification({
+            Title = "Fruit Spawned",
+            Icon = "radar",
+            ImageSource = "Material",
+            Content = "Uma fruta aleatória foi localizada. Use a toggle \"Esp Fruit\" para ativar o farm!"
+        })
+        self.notificationSent = true
+    end
+    return self
+end
+
+function EspFruit:checkFruit()
+    self:findFruit()
+    if self.fruitModel then
+        self:sendNotification()
+    end
+    return self
+end
+
+function EspFruit:enable()
+    self.isActive = true
+    return self
+end
+
+function EspFruit:disable()
+    self.isActive = false
     return self
 end
 
 function EspFruit:initialize()
-    self:searchFruit()
+    self:checkFruit()
     return self
 end
 
